@@ -88,7 +88,39 @@ pub fn build(b: *std.Build) !void {
         build_all.dependOn(build_single);
 
         switch (config.kind) {
-            .stm32 => {},
+            .stm32 => {
+                const flash_step = b.step("flash", "flash firmware onto the stm32");
+                flash_step.dependOn(build_single);
+
+                const run_flash = b.addSystemCommand(&.{"./scripts/flash.sh"});
+                var firmware_path: []const u8 = try std.mem.concat(
+                    b.allocator,
+                    u8,
+                    &[_][]const u8{ "zig-out/bin/", exe.out_filename },
+                );
+                defer b.allocator.free(firmware_path);
+                run_flash.addArg(firmware_path);
+                run_flash.addArg("target/stm32l4x.cfg");
+                run_flash.step.dependOn(build_single);
+
+                flash_step.dependOn(&run_flash.step);
+
+                const debug_step = b.step("debug-target", "flash and debug firmware on the stm32");
+                debug_step.dependOn(build_single);
+
+                const run_flash_debug = b.addSystemCommand(&.{"./scripts/flash-debug.sh"});
+                firmware_path = try std.mem.concat(
+                    b.allocator,
+                    u8,
+                    &[_][]const u8{ "zig-out/bin/", exe.out_filename },
+                );
+                defer b.allocator.free(firmware_path);
+                run_flash_debug.addArg(firmware_path);
+                run_flash_debug.addArg("target/stm32l4x.cfg");
+                run_flash_debug.step.dependOn(build_single);
+
+                debug_step.dependOn(&run_flash_debug.step);
+            },
             .native => {
                 const run_step = b.step("run", "run the program natively");
                 const run = b.addRunArtifact(exe);
