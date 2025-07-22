@@ -1,0 +1,3 @@
+[submodule "stm32-zig-build"]
+	path = stm32-zig-build
+	url = https://github.com/jdf18/stm32-zig-build.git
