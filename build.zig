@@ -86,6 +86,29 @@ pub fn build(b: *std.Build) !void {
         build_single.dependOn(&install_step.step);
 
         build_all.dependOn(build_single);
+
+        switch (config.kind) {
+            .stm32 => {},
+            .native => {
+                const run_step = b.step("run", "run the program natively");
+                const run = b.addRunArtifact(exe);
+                run_step.dependOn(build_single); // build and install
+                run_step.dependOn(&run.step);
+
+                const debug_step = b.step("debug", "debug the prorgam natively using gdb");
+                debug_step.dependOn(build_single); // build and install
+
+                const run_gdb = b.addSystemCommand(&.{"gdb"});
+                const executable_path: []const u8 = try std.mem.concat(
+                    b.allocator,
+                    u8,
+                    &[_][]const u8{ "zig-out/bin/", exe.out_filename },
+                );
+                defer b.allocator.free(executable_path);
+                run_gdb.addArg(executable_path);
+                debug_step.dependOn(&run_gdb.step);
+            },
+        }
     }
 
     // CLEAN STEP
