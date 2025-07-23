@@ -1,0 +1,46 @@
+name: zig-build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: ['*']
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+        
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Python dependencies
+        run: pip install pyyaml
+
+      - name: Run STM32 config script
+        run: python3 stm32-zig-build/setup.py
+
+      - name: Install ARM toolchain
+        run: sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi
+        
+      - uses: mlugg/setup-zig@v2
+      - name: Build Summary
+        run: zig build --summary all -freference-trace --verbose
+
+  # zig-msvc:
+  #   runs-on: windows-latest
+  #   strategy:
+  #     fail-fast: false
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: mlugg/setup-zig@v2
+  #     - name: Build Summary x86_64-windows-msvc
+  #       run: zig build --summary all -freference-trace --verbose
