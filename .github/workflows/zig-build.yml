@@ -17,6 +17,14 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+        
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run STM32 config script
+        run: python3 stm32-zig-build/setup.py
+        
       - uses: mlugg/setup-zig@v2
       - name: Build Summary
         run: zig build --summary all -freference-trace --verbose
