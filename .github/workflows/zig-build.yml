@@ -1,0 +1,32 @@
+name: zig-build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: ['*']
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - uses: mlugg/setup-zig@v2
+      - name: Build Summary
+        run: zig build --summary all -freference-trace --verbose
+
+  # zig-msvc:
+  #   runs-on: windows-latest
+  #   strategy:
+  #     fail-fast: false
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: mlugg/setup-zig@v2
+  #     - name: Build Summary x86_64-windows-msvc
+  #       run: zig build --summary all -freference-trace --verbose
