@@ -27,6 +27,9 @@ jobs:
 
       - name: Run STM32 config script
         run: python3 stm32-zig-build/setup.py
+
+      - name: Install ARM toolchain
+        run: sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi
         
       - uses: mlugg/setup-zig@v2
       - name: Build Summary
