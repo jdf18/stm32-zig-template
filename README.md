@@ -6,13 +6,14 @@ This is a example firmware template for STM32 projects using [stm32-zig-build](h
 - Uses libopencm3 for hardware abstraction
 - Easily compile for other targets (including local machine)
 - Simple to add build steps to improve development experience 
+- Easy to create executables for running tests
 
 ## Getting Started
 
 **Prerequisites**:
 - Zig (0.14.1 tested)
 - Python 3.10 or newer
-- make and a C compiler
+- make and a C compiler (compiling libopencm3)
 - Optionally: ARM flashing/debugging tools (e.g., OpenOCD)
 
 Clone this repository:
@@ -36,16 +37,9 @@ zig build
 
 You can then flash it using your preferred tool.
 
-### Extra build steps
+All possible build steps can be seen by running `zig build -l`.
 
-These are not all necessary and will vary between project but these are some examples which I decided to include:
-
-- `zig build native`: Builds only the local executable.
-- `zig build target`: Builds only the firmware for the stm32.
-- `zig build run`: Builds and runs the local version of the software.
-- `zig build debug`: Builds and opens gdb running the local version of the software.
-- `zig build flash`: Builds the firmware for the stm32 then runs `scripts/flash.sh` which can be configured for your specific microcontroller.
-- `zig build debug-target`: Builds the firmware for the stm32 then runs `scripts/flash-debug.sh` which can be configured for your specific microcontroller and preferred debugging environment.
+There are also some helper scripts in `scripts/` that you may find useful for flashing/debugging.
 
 ## Project Structure
 
@@ -53,10 +47,11 @@ These are not all necessary and will vary between project but these are some exa
 .
 ├── build.zig             # Zig build script
 ├── config.yaml           # Chip configuration file
+├── scripts/              # Flash/debug helper scripts
 ├── src/                  # Application source code
 │   └── main.cpp          # Your application's entry point
 ├── stm32-zig-build/      # Zig helper scripts and libopencm3 submodule
-│   └── ...               # (subtree from https://github.com/jdf18/stm32-zig-build)
+│   └── ...               # (from https://github.com/jdf18/stm32-zig-build)
 └── zig-out/              # Zig build output directory
 ```
 

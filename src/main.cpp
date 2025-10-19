@@ -2,6 +2,7 @@
 
 #ifdef NATIVE
     #include <stdio.h>
+    #define NATIVE_DEBUG(func, ...) printf(#func "\n");
 #else
     #include <libopencm3/stm32/rcc.h>
     #include <libopencm3/stm32/gpio.h>
@@ -10,30 +11,47 @@
     #define RCC_LED_PORT RCC_GPIOC
 
     #define LED GPIO7
+
+    #define NATIVE_DEBUG(func, ...) func(__VA_ARGS__);
 #endif
 
-extern "C" int main() {
+void setup() {
     #ifdef NATIVE
 
-    // Print hello world and exit
     printf("Hello World!\n");
 
-    #else
+    #endif
+}
 
+int8_t loop() {
+    return -1;
+}
+
+extern "C" int main() {
+
+    #ifndef TEST
+    setup();
+    while (loop() != -1) {}
+    #endif
+
+    
+    #ifdef TEST_blink
+
+    NATIVE_DEBUG(rcc_periph_clock_enable, RCC_LED_PORT);
+    
+    NATIVE_DEBUG(gpio_mode_setup, LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, LED);
+    NATIVE_DEBUG(gpio_set_output_options, LED_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_MED, LED);
+    
     // Flash led on and off
-    rcc_periph_clock_enable(RCC_LED_PORT);
-    
-    gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, LED);
-    gpio_set_output_options(LED_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_MED, LED);
-    
     while (true) {
-        gpio_clear(LED_PORT, LED);
+        NATIVE_DEBUG(gpio_clear, LED_PORT, LED);
         for (int i = 0; i < 100000; i++) __asm__("nop");
-        gpio_set(LED_PORT, LED);
+        NATIVE_DEBUG(gpio_set, LED_PORT, LED);
         for (int i = 0; i < 100000; i++) __asm__("nop");
     }
 
-    #endif
-
     return 0;
+
+    #endif
 }
+
